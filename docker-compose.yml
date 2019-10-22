@@ -1,0 +1,25 @@
+version: '2.4'
+services:
+  app:
+    build:
+      context: .
+    volumes:
+      - ./app:/app
+    command: python3 main.py
+    depends_on:
+      - local_serving
+    links:
+      - local_serving
+    working_dir: "/app"
+  local_serving:
+    runtime: nvidia
+    image: tensorflow/serving:1.15.0-gpu
+    volumes:
+      - ./models:/models
+    entrypoint:
+      - tensorflow_model_server
+      - --port=8500
+      - --model_name=retinanet
+      - --model_base_path=/models/retinanet
+    expose:
+      - "8500"
